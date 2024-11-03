@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MangaDex Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="animated-border">
+            <div class="content">
+                <!-- Main Title and Animated Typing Text -->
+                <div class="header-text">
+                    <h1 class="main-title">Discover Your Manga Universe</h1>
+                    <div class="typing-text">
+                        <span class="typing"></span>
+                    </div>
+                </div>
+
+                <!-- Main Content with Search Bar -->
+                <div class="main-content">
+                    <!-- Search Bar -->
+                    <header>
+                        <form id="search-form" onsubmit="return false;">
+                            <input type="text" id="search-input" placeholder="Search for a manga..." required>
+                            <button type="submit" id="searchBtn"><img src="./images/search.png" alt="Search"></button>
+                        </form>
+                    </header>
+
+                    <!-- Dropdown for Manga Results -->
+                    <div id="dropdown-manga" class="dropdown-manga">
+                        <div id="results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

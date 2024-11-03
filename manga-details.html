@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Manga Details</title>
+</head>
+<body>
+    <div id="manga-details"></div>
+    <div id="chapter-list"></div> <!-- Chapter List Container -->
+
+    <script>
+        async function fetchMangaDetails(mangaId) {
+            try {
+                // Fetch manga details
+                const response = await fetch(`http://localhost:8080/manga-details?id=${mangaId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Manga details response:', data); // Log the response
+
+                displayMangaDetails(data.data);  // Display manga details
+                fetchChapters(mangaId);  // Fetch chapters after manga details
+            } catch (error) {
+                console.error('Error fetching manga details:', error);
+            }
+        }
+
+        function displayMangaDetails(manga) {
+            if (!manga.attributes) {
+                document.getElementById('manga-details').innerHTML = '<p>Error: Manga details are not available.</p>';
+                return;
+            }
+
+            const title = manga.attributes.title.en || 'No Title';
+            const description = manga.attributes.description?.en || 'Description not available.';
+
+            const detailsContainer = document.getElementById('manga-details');
+            detailsContainer.innerHTML = `
+                <h2>${title}</h2>
+                <p>${description}</p>
+            `;
+        }
+
+        async function fetchChapters(mangaId) {
+            try {
+                // Fetch chapter list
+                const response = await fetch(`http://localhost:8080/manga-chapters?id=${mangaId}`);
+
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Chapter list response:', data); // Log the chapter list response
+
+                displayChapters(data.data);  // Display the chapter list
+            } catch (error) {
+                console.error('Error fetching chapters:', error);
+            }
+        }
+
+        function displayChapters(chapters) {
+            const chapterListContainer = document.getElementById('chapter-list');
+            chapterListContainer.innerHTML = '<h3>Chapters</h3>';
+
+            if (!chapters || chapters.length === 0) {
+                chapterListContainer.innerHTML += '<p>No chapters available.</p>';
+                return;
+            }
+
+            chapters.forEach(chapter => {
+                const chapterItem = document.createElement('div');
+                const chapterTitle = chapter.attributes.title || `Chapter ${chapter.attributes.chapter}`;
+
+                chapterItem.innerHTML = `
+                    <p>
+                        <a href="chapter-reader.html?id=${chapter.id}">
+                            ${chapterTitle}
+                        </a>
+                    </p>
+                `;
+
+                chapterListContainer.appendChild(chapterItem);
+            });
+        }
+
+        // Get manga ID from the URL and fetch manga details
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('id');
+        if (mangaId) {
+            fetchMangaDetails(mangaId);
+        }
+    </script>
+</body>
+</html>
