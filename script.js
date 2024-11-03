@@ -4,7 +4,7 @@ const dropdownManga = document.getElementById('dropdown-manga');
 // Function to search for manga based on the user query
 async function searchManga(query) {
     try {
-        const response = await fetch(`mange-prototype.vercel.app/manga?title=${encodeURIComponent(query)}`);
+        const response = await fetch(`http://localhost:8080/manga?title=${encodeURIComponent(query)}`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
