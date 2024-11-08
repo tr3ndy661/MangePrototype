@@ -8,60 +8,67 @@
 </head>
 <body>
     <h1>Chapter Reader</h1>
-    <div id="chapter-container">
-        <!-- Chapter pages will be dynamically inserted here -->
+    <div id="carousel-container">
+        <button id="prev-btn">&#10094;</button>
+        <div id="chapter-container" class="carousel">
+            <!-- Chapter pages will be dynamically inserted here -->
+        </div>
+        <button id="next-btn">&#10095;</button>
     </div>
     <script>
-        // Function to fetch chapter pages by chapter ID
         async function fetchChapterPages(chapterId) {
             try {
-                // Send a request to the server to fetch chapter pages
-                // const response = await fetch(`http://localhost:8080/chapter-pages?id=${chapterId}`);
                 const response = await fetch(`http://localhost:8080/chapter?id=${chapterId}`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 console.log("Chapter pages response:", data);
-
-                // Display the chapter pages
                 displayChapterPages(data);
             } catch (error) {
                 console.error('Error fetching chapter pages:', error);
             }
         }
 
-        // Function to display chapter pages on the reader
         function displayChapterPages(chapterData) {
             const chapterContainer = document.getElementById('chapter-container');
-            chapterContainer.innerHTML = ''; // Clear previous content
+            chapterContainer.innerHTML = ''; 
 
-            // Construct the base URL from the data
             const baseUrl = chapterData.baseUrl;
             const hash = chapterData.chapter.hash;
             const pages = chapterData.chapter.data;
 
-            // Loop through the pages and create image elements
             pages.forEach(page => {
                 const img = document.createElement('img');
                 img.src = `http://localhost:8080/proxy?url=${baseUrl}/data/${hash}/${page}`;
-                console.log( `http://localhost:8080/proxy?url=${baseUrl}/data/${hash}/${page}`)
+                img.classList.add('carousel-image');
                 chapterContainer.appendChild(img);
+            });
+
+            initializeCarousel();
+        }
+
+        function initializeCarousel() {
+            let index = 0;
+            const images = document.querySelectorAll('.carousel-image');
+            images.forEach(img => img.style.display = 'none');
+            if (images.length > 0) images[0].style.display = 'block';
+
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                images[index].style.display = 'none';
+                index = (index - 1 + images.length) % images.length;
+                images[index].style.display = 'block';
+            });
+
+            document.getElementById('next-btn').addEventListener('click', () => {
+                images[index].style.display = 'none';
+                index = (index + 1) % images.length;
+                images[index].style.display = 'block';
             });
         }
 
-        // Get the chapter ID from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const chapterId = urlParams.get('id');
-
-        // Fetch and display the chapter pages
-        if (chapterId) {
-            fetchChapterPages(chapterId);
-        } else {
-            console.error('No chapter ID found in the URL');
-        }
+        if (chapterId) fetchChapterPages(chapterId);
+        else console.error('No chapter ID found in the URL');
     </script>
 </body>
 </html>
