@@ -7,8 +7,26 @@
     <title>Manga Details</title>
 </head>
 <body>
-    <div id="manga-details"></div>
-    <div id="chapter-list"></div> <!-- Chapter List Container -->
+    <div class="details-container">
+        <!-- Dark Gray Box for Image -->
+        <div class="image-box">
+            <img id="manga-cover" src="" alt="">
+        </div>
+
+        <!-- Manga Title and Animated Description in Gray Box -->
+        <div id="manga-details" class="manga-info">
+            <h2 class="manga-title"></h2>
+            <div class="animated-description">
+                <p class="description-text"></p>
+            </div>
+        </div>
+
+        <!-- Chapter List with Reddish Rectangles -->
+        <div id="chapter-list" class="chapter-list">
+            <h3>Chapters</h3>
+            <ul class="chapter-items"></ul>
+        </div>
+    </div>
 
     <script>
         async function fetchMangaDetails(mangaId) {
@@ -20,76 +38,65 @@
                 }
 
                 const data = await response.json();
-                console.log('Manga details response:', data); // Log the response
+                console.log('Manga details response:', data);
 
-                displayMangaDetails(data.data);  // Display manga details
-                fetchChapters(mangaId);  // Fetch chapters after manga details
+                displayMangaDetails(data.data); // Display manga details
+                fetchChapters(mangaId); // Fetch chapters after manga details
             } catch (error) {
                 console.error('Error fetching manga details:', error);
             }
         }
 
         function displayMangaDetails(manga) {
-            if (!manga.attributes) {
-                document.getElementById('manga-details').innerHTML = '<p>Error: Manga details are not available.</p>';
-                return;
-            }
-
             const title = manga.attributes.title.en || 'No Title';
             const description = manga.attributes.description?.en || 'Description not available.';
+            const coverImageUrl = manga.attributes.coverImageUrl || 'default-image.jpg';
 
-            const detailsContainer = document.getElementById('manga-details');
-            detailsContainer.innerHTML = `
-                <h2>${title}</h2>
-                <p>${description}</p>
-            `;
+            document.querySelector('.manga-title').textContent = title;
+            document.querySelector('.description-text').textContent = description;
+            document.getElementById('manga-cover').src = coverImageUrl;
         }
 
         async function fetchChapters(mangaId) {
             try {
-                // Fetch chapter list
                 const response = await fetch(`http://localhost:8080/manga-chapters?id=${mangaId}`);
-
-                
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('Chapter list response:', data); // Log the chapter list response
+                console.log('Chapter list response:', data);
 
-                displayChapters(data.data);  // Display the chapter list
+                displayChapters(data.data); // Display the chapter list
             } catch (error) {
                 console.error('Error fetching chapters:', error);
             }
         }
 
         function displayChapters(chapters) {
-            const chapterListContainer = document.getElementById('chapter-list');
-            chapterListContainer.innerHTML = '<h3>Chapters</h3>';
+            const chapterListContainer = document.querySelector('.chapter-items');
 
             if (!chapters || chapters.length === 0) {
-                chapterListContainer.innerHTML += '<p>No chapters available.</p>';
+                chapterListContainer.innerHTML = '<p>No chapters available.</p>';
                 return;
             }
 
             chapters.forEach(chapter => {
-                const chapterItem = document.createElement('div');
+                const chapterItem = document.createElement('li');
+                chapterItem.classList.add('chapter-item');
+
                 const chapterTitle = chapter.attributes.title || `Chapter ${chapter.attributes.chapter}`;
 
                 chapterItem.innerHTML = `
-                    <p>
-                        <a href="chapter-reader.html?id=${chapter.id}">
-                            ${chapterTitle}
-                        </a>
-                    </p>
+                    <a href="chapter-reader.html?id=${chapter.id}">
+                        ${chapterTitle}
+                    </a>
                 `;
 
                 chapterListContainer.appendChild(chapterItem);
             });
         }
 
-        // Get manga ID from the URL and fetch manga details
         const urlParams = new URLSearchParams(window.location.search);
         const mangaId = urlParams.get('id');
         if (mangaId) {
